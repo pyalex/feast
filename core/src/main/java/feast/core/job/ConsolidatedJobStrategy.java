@@ -47,8 +47,8 @@ public class ConsolidatedJobStrategy implements JobGroupingStrategy {
   @Override
   public Job getOrCreateJob(Source source, Set<Store> stores) {
     return jobRepository
-        .findFirstBySourceTypeAndSourceConfigAndStoreNameAndStatusNotInOrderByLastUpdatedDesc(
-            source.getType(), source.getConfig(), null, JobStatus.getTerminalStates())
+        .findFirstBySourceTypeAndSourceConfigAndStoreNameIsNullAndStatusNotInOrderByLastUpdatedDesc(
+            source.getType(), source.getConfig(), JobStatus.getTerminalStates())
         .orElseGet(
             () ->
                 Job.builder()

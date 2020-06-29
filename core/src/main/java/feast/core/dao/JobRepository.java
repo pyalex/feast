@@ -36,6 +36,10 @@ public interface JobRepository extends JpaRepository<Job, String> {
           String storeName,
           Collection<JobStatus> statuses);
 
+  Optional<Job>
+      findFirstBySourceTypeAndSourceConfigAndStoreNameIsNullAndStatusNotInOrderByLastUpdatedDesc(
+          SourceProto.SourceType sourceType, String sourceConfig, Collection<JobStatus> statuses);
+
   List<Job> findByStatus(JobStatus status);
 
   List<Job> findByFeatureSetJobStatusesIn(List<FeatureSetJobStatus> featureSetsJobStatuses);

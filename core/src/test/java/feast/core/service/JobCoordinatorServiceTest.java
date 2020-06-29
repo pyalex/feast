@@ -272,12 +272,12 @@ public class JobCoordinatorServiceTest {
 
     when(jobRepository.findByStatus(JobStatus.RUNNING)).thenReturn(List.of());
     when(jobRepository
-            .findFirstBySourceTypeAndSourceConfigAndStoreNameAndStatusNotInOrderByLastUpdatedDesc(
-                source1.getType(), source1.getConfig(), null, JobStatus.getTerminalStates()))
+            .findFirstBySourceTypeAndSourceConfigAndStoreNameIsNullAndStatusNotInOrderByLastUpdatedDesc(
+                source1.getType(), source1.getConfig(), JobStatus.getTerminalStates()))
         .thenReturn(Optional.empty());
     when(jobRepository
-            .findFirstBySourceTypeAndSourceConfigAndStoreNameAndStatusNotInOrderByLastUpdatedDesc(
-                source2.getType(), source2.getConfig(), null, JobStatus.getTerminalStates()))
+            .findFirstBySourceTypeAndSourceConfigAndStoreNameIsNullAndStatusNotInOrderByLastUpdatedDesc(
+                source2.getType(), source2.getConfig(), JobStatus.getTerminalStates()))
         .thenReturn(Optional.empty());
 
     jcsWithConsolidation.Poll();
@@ -339,8 +339,8 @@ public class JobCoordinatorServiceTest {
 
     when(jobRepository.findByStatus(JobStatus.RUNNING)).thenReturn(List.of());
     when(jobRepository
-            .findFirstBySourceTypeAndSourceConfigAndStoreNameAndStatusNotInOrderByLastUpdatedDesc(
-                source1.getType(), source1.getConfig(), null, JobStatus.getTerminalStates()))
+            .findFirstBySourceTypeAndSourceConfigAndStoreNameIsNullAndStatusNotInOrderByLastUpdatedDesc(
+                source1.getType(), source1.getConfig(), JobStatus.getTerminalStates()))
         .thenReturn(Optional.empty());
 
     ArgumentCaptor<List<Job>> jobArgCaptor = ArgumentCaptor.forClass(List.class);
@@ -400,8 +400,8 @@ public class JobCoordinatorServiceTest {
     when(jobManager.getRunnerType()).thenReturn(Runner.DATAFLOW);
 
     when(jobRepository
-            .findFirstBySourceTypeAndSourceConfigAndStoreNameAndStatusNotInOrderByLastUpdatedDesc(
-                source.getType(), source.getConfig(), null, JobStatus.getTerminalStates()))
+            .findFirstBySourceTypeAndSourceConfigAndStoreNameIsNullAndStatusNotInOrderByLastUpdatedDesc(
+                source.getType(), source.getConfig(), JobStatus.getTerminalStates()))
         .thenReturn(Optional.of(inputJobs.get(0)));
     when(jobRepository.findByStatus(JobStatus.RUNNING)).thenReturn(inputJobs);
 
@@ -493,12 +493,12 @@ public class JobCoordinatorServiceTest {
 
     when(jobRepository.findByStatus(JobStatus.RUNNING)).thenReturn(List.of());
     when(jobRepository
-            .findFirstBySourceTypeAndSourceConfigAndStoreNameAndStatusNotInOrderByLastUpdatedDesc(
-                source1.getType(), source1.getConfig(), null, JobStatus.getTerminalStates()))
+            .findFirstBySourceTypeAndSourceConfigAndStoreNameIsNullAndStatusNotInOrderByLastUpdatedDesc(
+                source1.getType(), source1.getConfig(), JobStatus.getTerminalStates()))
         .thenReturn(Optional.empty());
     when(jobRepository
-            .findFirstBySourceTypeAndSourceConfigAndStoreNameAndStatusNotInOrderByLastUpdatedDesc(
-                source2.getType(), source2.getConfig(), null, JobStatus.getTerminalStates()))
+            .findFirstBySourceTypeAndSourceConfigAndStoreNameIsNullAndStatusNotInOrderByLastUpdatedDesc(
+                source2.getType(), source2.getConfig(), JobStatus.getTerminalStates()))
         .thenReturn(Optional.empty());
 
     jcsWithConsolidation.Poll();
@@ -703,8 +703,8 @@ public class JobCoordinatorServiceTest {
             .build();
 
     when(jobRepository
-            .findFirstBySourceTypeAndSourceConfigAndStoreNameAndStatusNotInOrderByLastUpdatedDesc(
-                source.getType(), source.getConfig(), null, JobStatus.getTerminalStates()))
+            .findFirstBySourceTypeAndSourceConfigAndStoreNameIsNullAndStatusNotInOrderByLastUpdatedDesc(
+                source.getType(), source.getConfig(), JobStatus.getTerminalStates()))
         .thenReturn(Optional.of(job));
 
     List<JobTask> tasks =
@@ -729,8 +729,8 @@ public class JobCoordinatorServiceTest {
             .build();
 
     when(jobRepository
-            .findFirstBySourceTypeAndSourceConfigAndStoreNameAndStatusNotInOrderByLastUpdatedDesc(
-                source.getType(), source.getConfig(), null, JobStatus.getTerminalStates()))
+            .findFirstBySourceTypeAndSourceConfigAndStoreNameIsNullAndStatusNotInOrderByLastUpdatedDesc(
+                source.getType(), source.getConfig(), JobStatus.getTerminalStates()))
         .thenReturn(Optional.of(job));
 
     List<JobTask> tasks =
@@ -746,8 +746,8 @@ public class JobCoordinatorServiceTest {
     Store store = TestUtil.createStore("store", Collections.emptyList());
 
     when(jobRepository
-            .findFirstBySourceTypeAndSourceConfigAndStoreNameAndStatusNotInOrderByLastUpdatedDesc(
-                source.getType(), source.getConfig(), null, JobStatus.getTerminalStates()))
+            .findFirstBySourceTypeAndSourceConfigAndStoreNameIsNullAndStatusNotInOrderByLastUpdatedDesc(
+                source.getType(), source.getConfig(), JobStatus.getTerminalStates()))
         .thenReturn(Optional.empty());
 
     List<JobTask> tasks =
