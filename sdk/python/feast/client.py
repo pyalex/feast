@@ -71,7 +71,6 @@ from feast.loaders.ingest import (
 from feast.serving.ServingService_pb2 import GetFeastServingInfoRequest
 from feast.serving.ServingService_pb2_grpc import ServingServiceStub
 
-
 _logger = logging.getLogger(__name__)
 
 CPU_COUNT: int = multiprocessing.cpu_count()
@@ -642,7 +641,9 @@ class Client:
         if (
             feature_table.batch_source
             and issubclass(type(feature_table.batch_source), FileSource)
-            and isinstance(type(feature_table.batch_source.file_options.file_format), ParquetFormat)
+            and isinstance(
+                type(feature_table.batch_source.file_options.file_format), ParquetFormat
+            )
         ):
             raise Exception(
                 f"No suitable batch source found for FeatureTable, {name}."
