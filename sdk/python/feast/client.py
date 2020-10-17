@@ -58,7 +58,7 @@ from feast.core.CoreService_pb2 import (
     ListProjectsResponse,
 )
 from feast.core.CoreService_pb2_grpc import CoreServiceStub
-from feast.data_source import BigQuerySource, FileSource
+from feast.data_source import BigQuerySource, FileSource, ParquetFormat
 from feast.entity import Entity
 from feast.feature import _build_feature_references
 from feast.feature_table import FeatureTable
@@ -657,10 +657,9 @@ class Client:
         if (
             feature_table.batch_source
             and issubclass(type(feature_table.batch_source), FileSource)
-            and "".join(
-                feature_table.batch_source.file_options.file_format.split()
-            ).lower()
-            != "parquet"
+            and isinstance(
+                type(feature_table.batch_source.file_options.file_format), ParquetFormat
+            )
         ):
             raise Exception(
                 f"No suitable batch source found for FeatureTable, {name}."
