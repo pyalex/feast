@@ -23,14 +23,14 @@ from feast.constants import (
     CONFIG_SPARK_LAUNCHER,
     CONFIG_SPARK_STANDALONE_MASTER,
 )
-from feast.data_source import BigQuerySource, DataSource, FileSource
+from feast.data_source import BigQuerySource, DataSource, FileSource, KafkaSource
 from feast.feature_table import FeatureTable
 from feast.pyspark.abc import (
     IngestionJob,
     IngestionJobParameters,
     JobLauncher,
     RetrievalJob,
-    RetrievalJobParameters,
+    RetrievalJobParameters, BatchIngestionJobParameters, StreamingIngestionJobParameters,
 )
 from feast.staging.storage_client import get_staging_client
 from feast.value_type import ValueType
@@ -86,29 +86,20 @@ def resolve_launcher(config: Config) -> JobLauncher:
 
 
 _SOURCES = {
-    FileSource: ("file", "file_options", {"path": "file_url", "format": "file_format"}),
-    BigQuerySource: ("bq", "bigquery_options", {"table_ref": "table_ref"}),
+    FileSource: ("file", {"url": "path"}),
+    BigQuerySource: ("bq", {}),
+    KafkaSource: ("kafka", {}),
 }
 
 
 def _source_to_argument(source: DataSource):
-    common_properties = {
-        "field_mapping": dict(source.field_mapping),
-        "event_timestamp_column": source.event_timestamp_column,
-        "created_timestamp_column": source.created_timestamp_column,
-        "date_partition_column": source.date_partition_column,
+    kind, mapping = _SOURCES[type(source)]
+    properties = {mapping.get(k, k): v for k, v in source.to_dict().items()}
+
+    properties['format'] = {
+        **properties['format'].__dict__,
+        **{"jsonClass": properties['format'].__class__.__name__}
     }
-
-    kind, option_field, extra_properties = _SOURCES[type(source)]
-
-    properties = {
-        **common_properties,
-        **{
-            k: getattr(getattr(source, option_field), ref)
-            for k, ref in extra_properties.items()
-        },
-    }
-
     return {kind: properties}
 
 
@@ -199,12 +190,31 @@ def start_offline_to_online_ingestion(
     local_jar_path = _download_jar(client._config.get(CONFIG_SPARK_INGESTION_JOB_JAR))
 
     return launcher.offline_to_online_ingestion(
-        IngestionJobParameters(
+        BatchIngestionJobParameters(
             jar=local_jar_path,
             source=_source_to_argument(feature_table.batch_source),
             feature_table=_feature_table_to_argument(client, feature_table),
             start=start,
             end=end,
+            redis_host=client._config.get(CONFIG_REDIS_HOST),
+            redis_port=client._config.getint(CONFIG_REDIS_PORT),
+            redis_ssl=client._config.getboolean(CONFIG_REDIS_SSL),
+        )
+    )
+
+
+def start_streaming_ingestion(
+        feature_table: FeatureTable, client: "Client"
+) -> IngestionJob:
+
+    launcher = resolve_launcher(client._config)
+    local_jar_path = _download_jar(client._config.get(CONFIG_SPARK_INGESTION_JOB_JAR))
+
+    return launcher.offline_to_online_ingestion(
+        StreamingIngestionJobParameters(
+            jar=local_jar_path,
+            source=_source_to_argument(feature_table.stream_source),
+            feature_table=_feature_table_to_argument(client, feature_table),
             redis_host=client._config.get(CONFIG_REDIS_HOST),
             redis_port=client._config.getint(CONFIG_REDIS_PORT),
             redis_ssl=client._config.getboolean(CONFIG_REDIS_SSL),

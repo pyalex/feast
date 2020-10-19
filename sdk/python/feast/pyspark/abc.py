@@ -259,8 +259,6 @@ class IngestionJobParameters(SparkJobParameters):
         self,
         feature_table: Dict,
         source: Dict,
-        start: datetime,
-        end: datetime,
         jar: str,
         redis_host: str,
         redis_port: int,
@@ -268,18 +266,10 @@ class IngestionJobParameters(SparkJobParameters):
     ):
         self._feature_table = feature_table
         self._source = source
-        self._start = start
-        self._end = end
         self._jar = jar
         self._redis_host = redis_host
         self._redis_port = redis_port
         self._redis_ssl = redis_ssl
-
-    def get_name(self) -> str:
-        return (
-            f"BatchIngestion-{self.get_feature_table_name()}-"
-            f"{self._start.strftime('%Y-%m-%d')}-{self._end.strftime('%Y-%m-%d')}"
-        )
 
     def _get_redis_config(self):
         return dict(host=self._redis_host, port=self._redis_port, ssl=self._redis_ssl)
@@ -295,18 +285,51 @@ class IngestionJobParameters(SparkJobParameters):
 
     def get_arguments(self) -> List[str]:
         return [
-            "--mode",
-            "offline",
             "--feature-table",
             json.dumps(self._feature_table),
             "--source",
             json.dumps(self._source),
+            "--redis",
+            json.dumps(self._get_redis_config()),
+        ]
+
+
+class BatchIngestionJobParameters(IngestionJobParameters):
+    def __init__(
+        self,
+        start: datetime,
+        end: datetime,
+        **kwargs
+    ):
+        super().__init__(**kwargs)
+        self._start = start
+        self._end = end
+
+    def get_name(self) -> str:
+        return (
+            f"BatchIngestion-{self.get_feature_table_name()}-"
+            f"{self._start.strftime('%Y-%m-%d')}-{self._end.strftime('%Y-%m-%d')}"
+        )
+
+    def get_arguments(self) -> List[str]:
+        return super().get_arguments() + [
+            "--mode",
+            "offline",
             "--start",
             self._start.strftime("%Y-%m-%dT%H:%M:%S"),
             "--end",
             self._end.strftime("%Y-%m-%dT%H:%M:%S"),
-            "--redis",
-            json.dumps(self._get_redis_config()),
+        ]
+
+
+class StreamingIngestionJobParameters(IngestionJobParameters):
+    def get_name(self) -> str:
+        return f"StreamingIngestion-{self.get_feature_table_name()}"
+
+    def get_arguments(self) -> List[str]:
+        return super().get_arguments() + [
+            "--mode",
+            "online",
         ]
 
 

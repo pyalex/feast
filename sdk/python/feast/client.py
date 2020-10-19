@@ -79,7 +79,7 @@ from feast.pyspark.launcher import (
     stage_dataframe,
     start_historical_feature_retrieval_job,
     start_historical_feature_retrieval_spark_session,
-    start_offline_to_online_ingestion,
+    start_offline_to_online_ingestion, start_streaming_ingestion,
 )
 from feast.serving.ServingService_pb2 import (
     GetFeastServingInfoRequest,
@@ -888,6 +888,11 @@ class Client:
         self, feature_table: Union[FeatureTable, str], start: datetime, end: datetime,
     ) -> SparkJob:
         return start_offline_to_online_ingestion(feature_table, start, end, self)  # type: ignore
+
+    def start_streaming_ingestion(
+            self, feature_table: Union[FeatureTable, str]
+    ) -> SparkJob:
+        return start_streaming_ingestion(feature_table, self)  # type: ignore
 
     def stage_dataframe(
         self,

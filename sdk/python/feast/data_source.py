@@ -571,6 +571,14 @@ class DataSource:
         """
         raise NotImplementedError
 
+    def to_dict(self) -> Dict:
+        return {
+            "field_mapping": dict(self.field_mapping),
+            "event_timestamp_column": self.event_timestamp_column,
+            "created_timestamp_column": self.created_timestamp_column,
+            "date_partition_column": self.date_partition_column,
+        }
+
 
 class FileSource(DataSource):
     def __init__(
@@ -628,6 +636,13 @@ class FileSource(DataSource):
 
         return data_source_proto
 
+    def to_dict(self) -> Dict:
+        return {
+            **super().to_dict(),
+            "url": self.file_options.file_url,
+            "format": self.file_options.file_format
+        }
+
 
 class BigQuerySource(DataSource):
     def __init__(
@@ -683,6 +698,12 @@ class BigQuerySource(DataSource):
         data_source_proto.date_partition_column = self.date_partition_column
 
         return data_source_proto
+
+    def to_dict(self) -> Dict:
+        return {
+            **super().to_dict(),
+            "table_ref": self.bigquery_options.table_ref
+        }
 
 
 class KafkaSource(DataSource):
@@ -751,6 +772,14 @@ class KafkaSource(DataSource):
 
         return data_source_proto
 
+    def to_dict(self) -> Dict:
+        return {
+            **super().to_dict(),
+            "format": self.kafka_options.message_format,
+            "bootstrap_servers": self.kafka_options.bootstrap_servers,
+            "topic": self.kafka_options.topic
+        }
+
 
 class KinesisSource(DataSource):
     def __init__(
@@ -814,3 +843,11 @@ class KinesisSource(DataSource):
         data_source_proto.date_partition_column = self.date_partition_column
 
         return data_source_proto
+
+    def to_dict(self) -> Dict:
+        return {
+            **super().to_dict(),
+            "format": self.kinesis_options.record_format,
+            "stream_name": self.kinesis_options.stream_name,
+            "region": self.kinesis_options.region
+        }
