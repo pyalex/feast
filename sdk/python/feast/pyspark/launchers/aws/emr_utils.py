@@ -126,6 +126,9 @@ def _s3_upload(
 
 
 def _upload_jar(jar_s3_prefix: str, local_path: str) -> str:
+    if not os.path.isfile(local_path):
+        return local_path
+
     with open(local_path, "rb") as f:
         return _s3_upload(
             f,
