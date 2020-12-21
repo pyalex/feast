@@ -29,6 +29,7 @@ import feast.storage.api.retriever.OnlineRetriever;
 import feast.storage.connectors.redis.serializer.RedisKeyPrefixSerializer;
 import feast.storage.connectors.redis.serializer.RedisKeySerializer;
 import io.grpc.Status;
+import io.lettuce.core.ReadFrom;
 import io.lettuce.core.RedisURI;
 import io.lettuce.core.cluster.RedisClusterClient;
 import io.lettuce.core.cluster.api.StatefulRedisClusterConnection;
@@ -72,6 +73,8 @@ public class RedisClusterOnlineRetriever implements OnlineRetriever {
     this.syncCommands = builder.connection.sync();
     this.serializer = builder.serializer;
     this.fallbackSerializer = builder.fallbackSerializer;
+
+    this.syncCommands.readOnly();
   }
 
   public static OnlineRetriever create(Map<String, String> config) {
@@ -85,6 +88,7 @@ public class RedisClusterOnlineRetriever implements OnlineRetriever {
             .collect(Collectors.toList());
     StatefulRedisClusterConnection<byte[], byte[]> connection =
         RedisClusterClient.create(redisURIList).connect(new ByteArrayCodec());
+    connection.setReadFrom(ReadFrom.REPLICA_PREFERRED);
 
     RedisKeySerializer serializer =
         new RedisKeyPrefixSerializer(config.getOrDefault("key_prefix", ""));
