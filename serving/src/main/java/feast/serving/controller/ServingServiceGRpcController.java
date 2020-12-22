@@ -105,8 +105,12 @@ public class ServingServiceGRpcController extends ServingServiceImplBase {
       if (span != null) {
         span.finish();
       }
+      Span finishReqSpan = tracer.buildSpan("finishRequest").start();
       responseObserver.onNext(onlineFeatures);
       responseObserver.onCompleted();
+      if (finishReqSpan != null) {
+        finishReqSpan.finish();
+      }
     } catch (SpecRetrievalException e) {
       log.error("Failed to retrieve specs in SpecService", e);
       responseObserver.onError(
