@@ -90,6 +90,7 @@ public class ServingServiceGRpcController extends ServingServiceImplBase {
       StreamObserver<GetOnlineFeaturesResponse> responseObserver) {
     try {
       // authorize for the project in request object.
+      Span authSpan = tracer.buildSpan("authorize").start();
       if (request.getProject() != null && !request.getProject().isEmpty()) {
         // project set at root level overrides the project set at feature set level
         this.authorizationService.authorizeRequest(
@@ -99,12 +100,22 @@ public class ServingServiceGRpcController extends ServingServiceImplBase {
         // <=v0.5.X
         this.checkProjectAccess(request.getFeaturesList());
       }
+      if (authSpan != null) {
+        authSpan.finish();
+      }
+
+      Span validateSpan = tracer.buildSpan("validate").start();
       RequestHelper.validateOnlineRequest(request);
+      if (validateSpan != null) {
+        validateSpan.finish();
+      }
+
       Span span = tracer.buildSpan("getOnlineFeatures").start();
       GetOnlineFeaturesResponse onlineFeatures = servingService.getOnlineFeatures(request);
       if (span != null) {
         span.finish();
       }
+
       Span finishReqSpan = tracer.buildSpan("finishRequest").start();
       responseObserver.onNext(onlineFeatures);
       responseObserver.onCompleted();
