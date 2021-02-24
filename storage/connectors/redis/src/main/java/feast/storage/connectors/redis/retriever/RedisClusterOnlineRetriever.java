@@ -39,6 +39,8 @@ import io.lettuce.core.cluster.RedisClusterClient;
 import io.lettuce.core.cluster.api.StatefulRedisClusterConnection;
 import io.lettuce.core.cluster.api.sync.RedisAdvancedClusterCommands;
 import io.lettuce.core.codec.ByteArrayCodec;
+import io.lettuce.core.protocol.ProtocolVersion;
+
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
@@ -99,6 +101,7 @@ public class RedisClusterOnlineRetriever implements OnlineRetriever {
             .topologyRefreshOptions(
                 ClusterTopologyRefreshOptions.builder().enableAllAdaptiveRefreshTriggers().build())
             .pingBeforeActivateConnection(true)
+            .protocolVersion(ProtocolVersion.RESP2)
             .build());
     StatefulRedisClusterConnection<byte[], byte[]> connection =
         client.connect(new ByteArrayCodec());
