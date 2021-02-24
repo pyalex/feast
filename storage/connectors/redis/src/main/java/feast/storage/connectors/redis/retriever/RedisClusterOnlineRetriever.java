@@ -40,7 +40,6 @@ import io.lettuce.core.cluster.api.StatefulRedisClusterConnection;
 import io.lettuce.core.cluster.api.sync.RedisAdvancedClusterCommands;
 import io.lettuce.core.codec.ByteArrayCodec;
 import io.lettuce.core.protocol.ProtocolVersion;
-
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
