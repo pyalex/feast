@@ -34,6 +34,7 @@ import io.lettuce.core.RedisURI;
 import io.lettuce.core.SocketOptions;
 import io.lettuce.core.TimeoutOptions;
 import io.lettuce.core.cluster.ClusterClientOptions;
+import io.lettuce.core.cluster.ClusterTopologyRefreshOptions;
 import io.lettuce.core.cluster.RedisClusterClient;
 import io.lettuce.core.cluster.api.StatefulRedisClusterConnection;
 import io.lettuce.core.cluster.api.sync.RedisAdvancedClusterCommands;
@@ -95,6 +96,8 @@ public class RedisClusterOnlineRetriever implements OnlineRetriever {
         ClusterClientOptions.builder()
             .socketOptions(SocketOptions.builder().keepAlive(true).tcpNoDelay(true).build())
             .timeoutOptions(TimeoutOptions.builder().fixedTimeout(Duration.ofMillis(500)).build())
+            .topologyRefreshOptions(
+                ClusterTopologyRefreshOptions.builder().enableAllAdaptiveRefreshTriggers().build())
             .pingBeforeActivateConnection(true)
             .build());
     StatefulRedisClusterConnection<byte[], byte[]> connection =
