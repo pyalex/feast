@@ -24,7 +24,10 @@ import feast.serving.service.ServingServiceV2;
 import feast.serving.specs.CachedSpecService;
 import feast.storage.api.retriever.OnlineRetrieverV2;
 import feast.storage.connectors.redis.retriever.*;
+import io.grpc.netty.shaded.io.grpc.netty.NettyServerBuilder;
+import io.grpc.netty.shaded.io.netty.channel.ChannelOption;
 import io.opentracing.Tracer;
+import net.devh.boot.grpc.server.serverfactory.GrpcServerConfigurer;
 import org.slf4j.Logger;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -62,5 +65,11 @@ public class ServingServiceConfigV2 {
     }
 
     return servingService;
+  }
+
+  @Bean
+  public GrpcServerConfigurer grpcServerConfigurer() {
+    return serverBuilder ->
+        ((NettyServerBuilder) serverBuilder).withOption(ChannelOption.TCP_NODELAY, true);
   }
 }
